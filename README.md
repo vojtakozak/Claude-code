@@ -17,9 +17,15 @@ Hotkey → Raycast form → (Whisper diktát) → Claude klasifikuje
 | **Raycast extension** | [`fellaship-brain-raycast/`](./fellaship-brain-raycast) | Capture + Browse |
 | **Hammerspoon hotkey** | [`hammerspoon/init.lua`](./hammerspoon/init.lua) | Global hotkey → Raycast |
 
-## Deploy
+## Deploy (macOS, local-first)
 
-Viz [`DEPLOY.md`](./DEPLOY.md) — step-by-step od VPS přes Raycast po Hammerspoon.
+```bash
+./install-macos.sh                                        # 1. backend → launchd @ 127.0.0.1:8765
+cd fellaship-brain-raycast && npm install && npm run dev  # 2. Raycast extension
+cat hammerspoon/init.lua >> ~/.hammerspoon/init.lua       # 3. global hotkey
+```
+
+Full guide: [`DEPLOY.md`](./DEPLOY.md). UI preview: otevři [`preview/index.html`](./preview/index.html) v browseru.
 
 ## Design
 

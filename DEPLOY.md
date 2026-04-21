@@ -1,145 +1,120 @@
-# 🚀 Fellaship Brain — Deploy Guide
+# 🚀 Fellaship Brain — Deploy Guide (macOS)
 
-Tři kroky, každý samostatný. Odhadovaný čas: **~30 min**.
+**Default cesta: lokálně na Macu. Žádná VPS, žádný port veřejně, žádný sudo.**
+Později můžeš upgradovat na VPS kvůli multi-device sync (viz níže).
 
 ---
 
-## 1. VPS backend (Hetzner)
+## ⚡ Quick install (3 kroky, ~5 min)
 
 ```bash
-# 1.1 Upload files
-scp -r brain-api/ root@<VPS_IP>:/opt/
+git clone <repo> ~/fellaship-brain && cd ~/fellaship-brain
 
-ssh root@<VPS_IP>
-cd /opt/brain-api
+# 1. Backend — local service, launchd user agent
+./install-macos.sh
 
-# 1.2 Python venv
-python3 -m venv venv
-source venv/bin/activate
+# 2. Raycast extension
+cd fellaship-brain-raycast && npm install && npm run dev
+# → Raycast → Fellaship Brain → Preferences → auth token (printnul installer)
+cd ..
+
+# 3. Hammerspoon hotkeys (pokud máš nainstalovaný Hammerspoon)
+cat hammerspoon/init.lua >> ~/.hammerspoon/init.lua
+# → v menu-bar ikoně Hammerspoon klikni Reload Config
+```
+
+Hotovo. Stiskni **⌃⌥⌘+B** kdekoli → otevře se capture form.
+
+---
+
+## 🔐 Co installer dělá (a proč je to safe)
+
+| Bod | Stav |
+|---|---|
+| Listen address | **`127.0.0.1:8765`** — jen loopback, nic veřejně dostupné |
+| Sudo | **Ne** — user-scope launchd agent, žádný root |
+| API key | `ANTHROPIC_API_KEY` do **macOS Keychain** (service `anthropic-api-key`) |
+| Auth token | Random 32B hex v `~/Library/Application Support/FellaShipBrain/.env` (mode 600) |
+| DB | SQLite v `~/Library/Application Support/FellaShipBrain/brain.db` |
+| Auto-start | LaunchAgent `~/Library/LaunchAgents/cz.fellaship.brain.plist`, `RunAtLoad + KeepAlive` |
+| Uninstall | `./uninstall-macos.sh` (interaktivně) |
+
+Firewall ničím neprotržeš — backend poslouchá jen na localhost, takže i když máš
+Mac v cizí Wi-Fi, nikdo se k němu z venku nedostane.
+
+---
+
+## 📱 UI preview
+
+Otevři `preview/index.html` ve Safari/Chrome — static HTML mock přesně jak to
+bude vypadat v Raycastu. Pro skutečné použití musíš mít Raycast + `npm run dev`.
+
+---
+
+## 🛠 Management
+
+```bash
+# Stop / start
+launchctl unload ~/Library/LaunchAgents/cz.fellaship.brain.plist
+launchctl load   ~/Library/LaunchAgents/cz.fellaship.brain.plist
+
+# Logs
+tail -f "$HOME/Library/Application Support/FellaShipBrain/brain.log"
+tail -f "$HOME/Library/Application Support/FellaShipBrain/brain.err.log"
+
+# Smoke test
+curl http://127.0.0.1:8765/health
+
+# Uninstall (ptá se na DB a Keychain)
+./uninstall-macos.sh
+```
+
+---
+
+## 🌐 Upgrade na VPS (kdy to dělat)
+
+Jakmile budeš chtít **přistupovat z víc zařízení** nebo **sync mezi Mac+iPhone**,
+pusť backend i na Hetzner VPS. Pak v Raycast preferences přepni
+`Brain API URL` z `http://127.0.0.1:8765` na `https://brain.fellaship.cz`.
+
+VPS kroky (původní plán):
+
+```bash
+scp -r brain-api/ root@<VPS>:/opt/
+ssh root@<VPS>
+cd /opt/brain-api && python3 -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
-
-# 1.3 .env
-cp .env.example .env
-# Vygeneruj random token:
-openssl rand -hex 32
-# Vlož do BRAIN_AUTH_TOKEN v .env; doplň ANTHROPIC_API_KEY
-nano .env
-
-# 1.4 Systemd
+cp .env.example .env && nano .env   # ANTHROPIC_API_KEY + openssl rand -hex 32
 cp brain-api.service /etc/systemd/system/
-systemctl daemon-reload
-systemctl enable --now brain-api
-systemctl status brain-api    # měl by být "active (running)"
-
-# 1.5 Nginx reverse proxy (pro HTTPS na brain.fellaship.cz)
+systemctl daemon-reload && systemctl enable --now brain-api
+# Nginx reverse proxy + certbot:
 cp nginx.conf.example /etc/nginx/sites-available/brain.fellaship.cz
-# uprav podle potřeby, pak:
 ln -s /etc/nginx/sites-available/brain.fellaship.cz /etc/nginx/sites-enabled/
 nginx -t && systemctl reload nginx
-
-# 1.6 HTTPS (cert)
 certbot --nginx -d brain.fellaship.cz
 ```
 
-**Smoke test z lokálu:**
+---
 
-```bash
-TOKEN=<ten co jsi dal do .env>
-curl https://brain.fellaship.cz/health
-curl -H "Authorization: Bearer $TOKEN" https://brain.fellaship.cz/thoughts
-curl -X POST https://brain.fellaship.cz/capture \
-     -H "Authorization: Bearer $TOKEN" \
-     -H "Content-Type: application/json" \
-     -d '{"raw_text":"test zachyceni myslenky, kissDent kampan na listopad"}'
-```
+## 🎙 Whisper flow
 
-DNS: nezapomeň přidat `A` záznam `brain.fellaship.cz` → IP VPS.
+Fn klávesu Hammerspoon nevidí. Flow je proto 2-step:
+
+1. `⌃⌥⌘+B` → capture form otevřený, kurzor v textarea
+2. `⌃⌥⌘+Fn` (tvůj Whisper hotkey) → diktuje rovnou do formuláře
+3. Enter → Claude klasifikuje → detail s **⌘+K Konzultuj s Claudem**
+
+Pokud máš Karabiner-Elements, můžeš namapovat `Fn → F19` a pak v Hammerspoonu
+udělat jeden hotkey co to spojí. Jinak je 2-step bezpečnější (žádné race conditions).
 
 ---
 
-## 2. Raycast extension (Mac)
+## ❓ Troubleshooting
 
-```bash
-cd fellaship-brain-raycast
-npm install
-npm run dev        # importuje do Raycastu + watch mód
-```
-
-Raycast se otevře s Capture commandem. Cmd+, na extension → **Preferences**:
-
-- **Brain API URL**: `https://brain.fellaship.cz`
-- **Auth Token**: (stejná hodnota jako v VPS .env)
-
-Test: `⌘+Space → "Capture Thought" → napiš "test" → Enter.`
-
-### Vlastní ikonka
-
-`assets/icon.png` je modrý placeholder. Pokud chceš vlastní:
-
-```bash
-# 512×512 PNG, nahraď soubor, pak `npm run dev` znovu
-cp ~/Downloads/brain-icon.png assets/icon.png
-```
-
----
-
-## 3. Hammerspoon hotkeys (Mac)
-
-```bash
-# Pokud Hammerspoon nemáš:
-brew install --cask hammerspoon
-open -a Hammerspoon
-# povol Accessibility v System Settings → Privacy & Security
-
-# Append config:
-cat hammerspoon/init.lua >> ~/.hammerspoon/init.lua
-
-# Reload (menu-bar Hammerspoon ikon → Reload Config)
-```
-
-**Hotkeys:**
-
-| Kombo | Akce |
+| Problém | Řešení |
 |---|---|
-| `⌃⌥⌘ + B` | otevři capture form |
-| `⌃⌥⌘ + L` | otevři browse |
-| `⌃⌥⌘ + ;` | capture + pokus se aktivovat Whisper |
-
----
-
-## 4. Whisper flow (vysvětlení)
-
-`Fn` klávesu **Hammerspoon nedetekuje**. Proto je flow rozdělený:
-
-1. Stiskni `⌃⌥⌘ + B` → otevře se capture form (autoFocus na textarea)
-2. Stiskni svůj **Whisper hotkey** (`⌃⌥⌘ + Fn`) → Whisper napíše diktovaný text
-   rovnou do Raycast inputu (píše tam, kde je kurzor)
-3. Enter → Claude klasifikuje → detail s "Konzultuj s Claudem" tlačítkem (`⌘+K`)
-
-Dva hotkeys místo jednoho, ale každý dělá jednu věc spolehlivě (žádné race
-conditions).
-
-**Alternativa pro one-shot flow:** pokud máš Karabiner-Elements, remap
-`Fn → F19` a pak v Hammerspoonu bind `hs.hotkey.bind({"ctrl","alt","cmd"}, "F19", ...)`.
-
----
-
-## Troubleshooting
-
-- `systemctl status brain-api` → logs přes `journalctl -u brain-api -f`
-- Raycast: pokud capture neuspěje, otevři Raycast logs (`⌃⌘L` ve vývoji)
-- Claude klasifikace vrátila 500: zkontroluj `ANTHROPIC_API_KEY`
-- `fetch` chyby v Raycastu: verze Raycast >= 1.60 má nativní fetch, `@raycast/api` už to řeší
-
----
-
-## Co je realistické / co ne
-
-- ✅ Backend, Raycast, Hammerspoon — jsou postavené tak jak jsou v repu.
-- ⚠️ **Whisper + Raycast one-shot** přes Fn klávesu není možný bez Karabiner-Elements.
-  Používáme proto 2-hotkey flow (výše).
-- ⚠️ **Barvy v Raycastu** jsou omezené na native palette (`Color.Blue`, `.Purple`,
-  `.Orange`, `.Yellow`, `.Green`, `.Red`, `.Magenta`, `.SecondaryText`,
-  `.PrimaryText`). Držíme se modré jako hlavní a ostatní používáme sparingly.
-- ℹ️ `brain-api` běží jako `root` v systemd — pro čistší nasazení si vytvoř
-  dedikovaného usera a uprav `User=` v `brain-api.service`.
+| `launchctl load` error | Zkus `launchctl unload` první, pak znova load |
+| Raycast fetch fail | Zkontroluj `curl http://127.0.0.1:8765/health` a token v Prefs |
+| Classify 500 | Špatný / chybějící `ANTHROPIC_API_KEY` v Keychain nebo .env |
+| Hammerspoon hotkey nejde | System Settings → Privacy → Accessibility → zaškrtnout Hammerspoon |
+| Chci to vypnout | `launchctl unload ~/Library/LaunchAgents/cz.fellaship.brain.plist` |

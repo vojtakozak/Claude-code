@@ -30,7 +30,7 @@
       "description": "URL tvého brain-api serveru",
       "type": "textfield",
       "required": true,
-      "default": "https://brain.fellaship.cz"
+      "default": "http://127.0.0.1:8765"
     },
     {
       "name": "authToken",
