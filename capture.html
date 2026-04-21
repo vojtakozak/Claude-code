@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="cs">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fellaship Brain — Capture</title>
+    <link rel="stylesheet" href="/src/styles/capture.css" />
+  </head>
+  <body>
+    <div class="panel" id="panel">
+      <div class="capture-row">
+        <textarea
+          class="capture-input"
+          id="input"
+          rows="1"
+          placeholder="Co ti letí hlavou?"
+          autocomplete="off"
+          autofocus
+          spellcheck="false"
+        ></textarea>
+        <button class="capture-mic" id="mic" title="Tvůj Whisper hotkey napíše text sem" aria-label="Mikrofon">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="5.5" y="1.5" width="5" height="8" rx="2.5"/>
+            <path d="M3 7a5 5 0 0 0 10 0"/>
+            <path d="M8 12v3"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="thinking" id="thinking">
+        <div class="row skeleton mid"></div>
+        <div class="row skeleton short"></div>
+        <div class="row skeleton"></div>
+      </div>
+
+      <div class="result" id="result">
+        <div class="result-title" id="result-title"></div>
+        <div class="result-chips" id="result-chips"></div>
+        <div class="result-description" id="result-description"></div>
+        <div class="result-prompt" id="result-prompt-wrap" style="display:none">
+          <span class="result-prompt-label">Prompt pro konzultaci</span>
+          <span id="result-prompt"></span>
+        </div>
+      </div>
+
+      <div class="error-banner" id="error-banner"></div>
+
+      <div class="hint-bar">
+        <div class="group">
+          <span class="hint" id="hint-save"><span class="kbd">⏎</span> Uložit</span>
+          <span class="hint"><span class="kbd">⌘</span><span class="kbd">⏎</span> Uložit + otevřít</span>
+          <span class="hint"><span class="kbd">esc</span> Zavřít</span>
+        </div>
+        <div class="group">
+          <span class="hint" id="status-dot">●</span>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="/src/scripts/capture.ts"></script>
+  </body>
+</html>

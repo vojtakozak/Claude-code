@@ -1,0 +1,98 @@
+{
+  "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
+  "productName": "Fellaship Brain",
+  "version": "0.1.0",
+  "identifier": "cz.fellaship.brain",
+  "build": {
+    "devUrl": "http://localhost:1420",
+    "frontendDist": "../dist",
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build"
+  },
+  "app": {
+    "macOSPrivateApi": true,
+    "withGlobalTauri": false,
+    "windows": [
+      {
+        "label": "main",
+        "title": "Fellaship Brain",
+        "url": "index.html",
+        "width": 980,
+        "height": 680,
+        "minWidth": 720,
+        "minHeight": 480,
+        "center": true,
+        "resizable": true,
+        "decorations": true,
+        "titleBarStyle": "Overlay",
+        "transparent": false,
+        "visible": false,
+        "hiddenTitle": true
+      },
+      {
+        "label": "capture",
+        "title": "Capture",
+        "url": "capture.html",
+        "width": 640,
+        "height": 220,
+        "minWidth": 640,
+        "minHeight": 80,
+        "center": true,
+        "resizable": false,
+        "decorations": false,
+        "transparent": true,
+        "alwaysOnTop": true,
+        "visible": false,
+        "skipTaskbar": true,
+        "focus": true,
+        "shadow": false
+      },
+      {
+        "label": "settings",
+        "title": "Nastavení",
+        "url": "settings.html",
+        "width": 620,
+        "height": 540,
+        "center": true,
+        "resizable": false,
+        "decorations": true,
+        "transparent": false,
+        "visible": false,
+        "titleBarStyle": "Overlay",
+        "hiddenTitle": true
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["dmg", "app"],
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "category": "Productivity",
+    "shortDescription": "AI-native thought capture",
+    "longDescription": "Floating quick-capture panel that classifies your thoughts with Claude and keeps them searchable — second brain for fast thinkers.",
+    "copyright": "© 2026 Vojta Kozák",
+    "macOS": {
+      "minimumSystemVersion": "14.0",
+      "frameworks": [],
+      "exceptionDomain": "",
+      "entitlements": null,
+      "dmg": {
+        "background": null,
+        "windowPosition": { "x": 400, "y": 200 },
+        "windowSize": { "width": 660, "height": 400 },
+        "appPosition": { "x": 180, "y": 190 },
+        "applicationFolderPosition": { "x": 480, "y": 190 }
+      }
+    }
+  },
+  "plugins": {}
+}

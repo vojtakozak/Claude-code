@@ -1,0 +1,101 @@
+name: Build macOS .dmg
+
+on:
+  push:
+    branches:
+      - main
+      - "claude/**"
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-macos:
+    runs-on: macos-14
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-darwin
+
+      - name: Cache Rust build
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: "src-tauri -> target"
+
+      - name: Install frontend deps
+        run: npm ci
+
+      - name: Regenerate icons from source PNG
+        run: npx tauri icon src-tauri/icons/icon.png -o src-tauri/icons || true
+
+      - name: Build app (aarch64 Apple Silicon)
+        run: npx tauri build --target aarch64-apple-darwin
+        env:
+          CI: true
+
+      - name: Ad-hoc codesign .app (reduces first-open prompts)
+        run: |
+          APP_PATH=$(find src-tauri/target/aarch64-apple-darwin/release/bundle/macos -maxdepth 1 -name "*.app" | head -n1)
+          if [ -n "$APP_PATH" ]; then
+            codesign --force --deep --sign - "$APP_PATH"
+            echo "Signed ad-hoc: $APP_PATH"
+          fi
+
+      - name: Locate artifacts
+        id: locate
+        run: |
+          DMG=$(find src-tauri/target/aarch64-apple-darwin/release/bundle/dmg -name "*.dmg" | head -n1)
+          APP=$(find src-tauri/target/aarch64-apple-darwin/release/bundle/macos -maxdepth 1 -name "*.app" | head -n1)
+          echo "dmg=$DMG" >> "$GITHUB_OUTPUT"
+          echo "app=$APP" >> "$GITHUB_OUTPUT"
+          echo "Built DMG: $DMG"
+          ls -la "$(dirname "$DMG")" || true
+
+      - name: Upload .dmg artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: FellaShipBrain-macos-aarch64-dmg
+          path: src-tauri/target/aarch64-apple-darwin/release/bundle/dmg/*.dmg
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Zip .app bundle
+        if: steps.locate.outputs.app != ''
+        run: |
+          cd "$(dirname "${{ steps.locate.outputs.app }}")"
+          ditto -c -k --sequesterRsrc --keepParent "$(basename "${{ steps.locate.outputs.app }}")" FellaShipBrain-aarch64.app.zip
+          mv FellaShipBrain-aarch64.app.zip "$GITHUB_WORKSPACE/"
+
+      - name: Upload .app zip
+        uses: actions/upload-artifact@v4
+        with:
+          name: FellaShipBrain-macos-aarch64-app
+          path: FellaShipBrain-aarch64.app.zip
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Create GitHub Release on tag
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            src-tauri/target/aarch64-apple-darwin/release/bundle/dmg/*.dmg
+            FellaShipBrain-aarch64.app.zip
+          generate_release_notes: true
+          draft: false
+          prerelease: false

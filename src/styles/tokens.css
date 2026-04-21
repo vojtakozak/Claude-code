@@ -1,0 +1,100 @@
+/* ============================================================
+   Fellaship Brain — design tokens
+   Dark-first, iridescent indigo accent.
+   ============================================================ */
+
+:root {
+  /* Surfaces */
+  --bg-base: #0b0d10;
+  --bg-elevated: #14171c;
+  --bg-overlay: #1b1f26;
+  --bg-glass: rgba(20, 23, 28, 0.72);
+
+  /* Borders */
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --border-default: rgba(255, 255, 255, 0.09);
+  --border-strong: rgba(255, 255, 255, 0.14);
+  --border-inner-highlight: rgba(255, 255, 255, 0.08);
+
+  /* Text */
+  --text-primary: #f5f7fa;
+  --text-secondary: #a8b0bd;
+  --text-tertiary: #6b7280;
+  --text-quaternary: #4b5563;
+
+  /* Accent — iridescent indigo shifting to violet */
+  --accent: #6366f1;
+  --accent-hover: #7c7ff5;
+  --accent-violet: #8b5cf6;
+  --accent-glow: rgba(99, 102, 241, 0.35);
+  --accent-subtle: rgba(99, 102, 241, 0.12);
+  --accent-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+
+  /* Secondary punctuation — amber, used sparingly */
+  --amber: #f59e0b;
+  --amber-subtle: rgba(245, 158, 11, 0.12);
+
+  /* Semantic */
+  --success: #34d399;
+  --warning: #fbbf24;
+  --danger: #f87171;
+  --info: #60a5fa;
+
+  /* Category bullet colors */
+  --cat-napad: var(--accent);
+  --cat-popis: var(--accent-violet);
+  --cat-klient: #60a5fa;
+  --cat-pripominka: var(--amber);
+  --cat-jine: #6b7280;
+
+  /* Typography */
+  --font-sans: -apple-system, "SF Pro Text", "SF Pro Display", "Inter", system-ui,
+    sans-serif;
+  --font-rounded: "SF Pro Rounded", var(--font-sans);
+  --font-mono: "SF Mono", "JetBrains Mono", ui-monospace, monospace;
+
+  /* Type scale */
+  --fs-display: 32px;
+  --fs-title: 20px;
+  --fs-headline: 15px;
+  --fs-body: 13px;
+  --fs-caption: 11px;
+
+  /* Spacing (4px grid) */
+  --space-1: 2px;
+  --space-2: 4px;
+  --space-3: 6px;
+  --space-4: 8px;
+  --space-5: 12px;
+  --space-6: 16px;
+  --space-7: 20px;
+  --space-8: 24px;
+  --space-10: 32px;
+  --space-12: 40px;
+  --space-14: 56px;
+  --space-18: 72px;
+
+  /* Radius */
+  --r-xs: 4px;
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 14px;
+  --r-xl: 18px;
+  --r-2xl: 24px;
+  --r-pill: 999px;
+
+  /* Elevation — prefer borders + minimal shadows */
+  --elev-panel: 0 0 0 0.5px rgba(0, 0, 0, 0.6),
+    0 24px 48px -12px rgba(0, 0, 0, 0.55),
+    0 8px 16px -8px rgba(0, 0, 0, 0.4);
+  --elev-popover: 0 0 0 0.5px rgba(0, 0, 0, 0.5),
+    0 12px 32px -8px rgba(0, 0, 0, 0.5);
+
+  /* Motion */
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --dur-instant: 80ms;
+  --dur-fast: 140ms;
+  --dur-base: 220ms;
+  --dur-slow: 380ms;
+}

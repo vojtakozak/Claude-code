@@ -1,0 +1,50 @@
+[package]
+name = "fellaship-brain"
+version = "0.1.0"
+edition = "2021"
+description = "Fellaship Brain — AI-native thought capture"
+authors = ["Vojta Kozák"]
+
+[lib]
+name = "fellaship_brain_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[[bin]]
+name = "fellaship-brain"
+path = "src/main.rs"
+
+[build-dependencies]
+tauri-build = { version = "2.0", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["macos-private-api"] }
+tauri-plugin-global-shortcut = "2"
+tauri-plugin-shell = "2"
+tauri-plugin-clipboard-manager = "2"
+tauri-plugin-single-instance = "2"
+
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "1"
+
+tokio = { version = "1", features = ["full"] }
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+rusqlite = { version = "0.32", features = ["bundled"] }
+chrono = { version = "0.4", features = ["serde"] }
+keyring = { version = "3.6", features = ["apple-native"] }
+log = "0.4"
+once_cell = "1"
+
+[target."cfg(target_os = \"macos\")".dependencies]
+window-vibrancy = "0.5"
+
+[features]
+default = []
+custom-protocol = ["tauri/custom-protocol"]
+
+[profile.release]
+lto = true
+codegen-units = 1
+strip = true
+opt-level = "z"
+panic = "abort"

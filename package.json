@@ -1,0 +1,24 @@
+{
+  "name": "fellaship-brain",
+  "version": "0.1.0",
+  "description": "Fellaship Brain — AI-native thought capture for macOS",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "tauri": "tauri"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^2.1.1",
+    "@tauri-apps/plugin-global-shortcut": "^2.2.0",
+    "@tauri-apps/plugin-shell": "^2.2.0",
+    "@tauri-apps/plugin-clipboard-manager": "^2.2.0"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.1.0",
+    "typescript": "~5.6.2",
+    "vite": "^5.4.10"
+  }
+}

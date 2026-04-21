@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="cs">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fellaship Brain — Nastavení</title>
+    <link rel="stylesheet" href="/src/styles/settings.css" />
+  </head>
+  <body>
+    <div class="shell">
+      <div class="titlebar">
+        <div class="titlebar-title">Nastavení</div>
+      </div>
+
+      <div class="content">
+        <h1>Vítej v Fellaship Brain</h1>
+        <p class="lead">
+          Pro klasifikaci myšlenek potřebuje aplikace tvůj Anthropic API klíč.
+          Ukládá se bezpečně do macOS Keychain — nikdy neopouští tvůj Mac kromě volání Anthropic API.
+        </p>
+
+        <div class="field-group">
+          <label class="field-label" for="api-key">Anthropic API Key</label>
+          <input
+            type="password"
+            id="api-key"
+            class="field-input"
+            placeholder="sk-ant-…"
+            autocomplete="off"
+            spellcheck="false"
+          />
+          <div class="field-hint">
+            Získáš na <a href="#" id="link-console" style="color:var(--accent)">console.anthropic.com</a>.
+            Klíč se ukládá do macOS Keychain (service: <code>fellaship-brain</code>).
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="hotkey">Globální hotkey</label>
+          <select id="hotkey" class="field-select" style="font-family: var(--font-sans);">
+            <option value="CmdOrCtrl+Shift+Space">⌘ + ⇧ + Space (default)</option>
+            <option value="CmdOrCtrl+Alt+Space">⌘ + ⌥ + Space</option>
+            <option value="CmdOrCtrl+Shift+B">⌘ + ⇧ + B</option>
+          </select>
+          <div class="field-hint">Tenhle hotkey kdekoli otevře floating capture panel.</div>
+        </div>
+
+        <button class="btn btn--primary" id="btn-save">Uložit</button>
+        <span class="status" id="status"></span>
+
+        <div class="hr"></div>
+
+        <p class="field-hint">
+          Verze <span id="version">0.1.0</span> · repo na
+          <a href="#" id="link-repo" style="color:var(--accent)">GitHubu</a>.
+          Bug? Napiš.
+        </p>
+      </div>
+    </div>
+
+    <script type="module" src="/src/scripts/settings.ts"></script>
+  </body>
+</html>
