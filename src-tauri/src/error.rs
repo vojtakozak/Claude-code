@@ -43,7 +43,7 @@ impl From<serde_json::Error> for AppError {
 }
 
 impl Serialize for AppError {
-    fn serialize<S: serde::Serializer>(&self, ser: S) -> Result<S::Ok, S::Error> {
+    fn serialize<S: serde::Serializer>(&self, ser: S) -> std::result::Result<S::Ok, S::Error> {
         use serde::ser::SerializeStruct;
         let mut st = ser.serialize_struct("AppError", 2)?;
         let code = match self {

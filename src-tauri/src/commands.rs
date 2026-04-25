@@ -4,7 +4,7 @@ use crate::error::{AppError, Result};
 use crate::keychain;
 use crate::window;
 use chrono::Utc;
-use tauri::{AppHandle, Manager, State};
+use tauri::{AppHandle, State};
 
 #[tauri::command]
 pub async fn capture_thought(

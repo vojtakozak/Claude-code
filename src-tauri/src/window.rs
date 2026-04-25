@@ -1,4 +1,4 @@
-use tauri::{AppHandle, Manager, WebviewWindow};
+use tauri::{AppHandle, Emitter, Manager, WebviewWindow};
 
 pub fn show_capture(app: &AppHandle) -> tauri::Result<()> {
     if let Some(window) = app.get_webview_window("capture") {
